@@ -9,7 +9,8 @@ local essentia_amount = 6400
 local redstone_sides =
 {
     tablet = sides.east,
-    breaker = sides.north
+    breaker = sides.north,
+    bee = sides.west
 }
 local transposer_sides =
 {
@@ -58,6 +59,9 @@ table.insert(threads, thread.create(function()
             local aspect_name = item.aspects[1].name:lower()
             if get_essentia_amount_by_name(aspect_name) < essentia_amount then
                 print("try to increase", aspect_name)
+                if redstone_sides.bee then
+                    redstone.setOutput(redstone_sides.bee, 15)
+                end
                 transposer.transferItem(transposer_sides.cache, transposer_sides.tablet, 1, slot)
                 redstone.setOutput(redstone_sides.tablet, 15)
                 os.sleep(1)
@@ -74,6 +78,9 @@ table.insert(threads, thread.create(function()
                 redstone.setOutput(redstone_sides.breaker, 15)
                 os.sleep(1)
                 redstone.setOutput(redstone_sides.breaker, 0)
+                if redstone_sides.bee then
+                    redstone.setOutput(redstone_sides.bee, 0)
+                end
                 print("Finish to increase", aspect_name)
             end
         end
@@ -81,6 +88,9 @@ table.insert(threads, thread.create(function()
 end))
 table.insert(threads, thread.create(function()
     event.pull(nil, "interrupted")
+    if redstone_sides.bee then
+        redstone.setOutput(redstone_sides.bee, 0)
+    end
 end))
 thread.waitForAny(threads)
 os.exit(0)
